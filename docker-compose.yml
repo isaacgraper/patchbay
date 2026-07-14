@@ -1,0 +1,14 @@
+services:
+  patchbay-backend:
+    build:
+      context: .
+      dockerfile: packages/backend/Dockerfile
+    ports:
+      - "4333:4333"
+    volumes:
+      - ./user_skills:/app/user_skills
+      - ./patchbay.db:/app/patchbay.db
+    env_file:
+      - .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
