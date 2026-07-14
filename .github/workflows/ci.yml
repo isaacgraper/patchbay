@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load cached venv
+        uses: actions/cache@v4
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('poetry.lock') }}
+
+      - name: Install dependencies
+        run: poetry install --no-interaction
+
+      - name: Lint (ruff)
+        run: poetry run ruff check backend/ tests/
+
+      - name: Format check (ruff)
+        run: poetry run ruff format --check backend/ tests/
+
+      - name: Type check (mypy)
+        run: poetry run mypy backend/
+
+      - name: Test (pytest)
+        run: poetry run pytest
+
+  frontend:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ["20", "22"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: frontend
+
+      - name: Type check (tsc)
+        run: npx tsc --noEmit
+        working-directory: frontend
+
+      - name: Build
+        run: npm run build
+        working-directory: frontend
