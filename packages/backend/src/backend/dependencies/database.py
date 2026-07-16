@@ -1,13 +1,11 @@
-import os
 from collections.abc import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from backend.database.models import Base
+from backend.config import settings
+from backend.models import Base
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./patchbay.db")
-
-engine = create_async_engine(DATABASE_URL, echo=False)
+engine = create_async_engine(settings.database_url, echo=False)
 async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 

@@ -21,7 +21,7 @@ test:
 	poetry run pytest -v
 
 dev:
-	poetry run uvicorn backend.main:app --host 0.0.0.0 --port 4333 --reload
+	poetry run uvicorn backend.app:app --host 0.0.0.0 --port 4333 --reload
 
 docker-up:
 	docker compose up --build

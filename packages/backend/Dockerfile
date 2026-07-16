@@ -14,9 +14,9 @@ WORKDIR /app
 COPY --from=builder /app/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY packages/backend/ ./backend/
+COPY packages/backend/src/backend/ ./backend/
 COPY user_skills/ ./user_skills/
 
 EXPOSE 4333
 
-CMD ["python", "-m", "uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "4333"]
+CMD ["python", "-m", "uvicorn", "backend.app:app", "--host", "0.0.0.0", "--port", "4333"]

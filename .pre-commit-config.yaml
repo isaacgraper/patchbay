@@ -19,5 +19,5 @@ repos:
     hooks:
       - id: mypy
         args: ["--config-file=pyproject.toml", "packages/backend"]
-        additional_dependencies: [pydantic, sqlalchemy]
+        additional_dependencies: [pydantic, pydantic-settings, sqlalchemy]
         pass_filenames: false
