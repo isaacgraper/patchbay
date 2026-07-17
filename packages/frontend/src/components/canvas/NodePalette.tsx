@@ -8,9 +8,7 @@ const categories = [
 export default function NodePalette() {
   return (
     <aside className="w-48 border-r border-gray-800 bg-gray-900 p-3">
-      <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
-        Blocks
-      </h2>
+      <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Blocks</h2>
       <div className="space-y-2">
         {categories.map((cat) => (
           <div

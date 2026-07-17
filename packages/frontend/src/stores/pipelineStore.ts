@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { PipelineNode, PipelineEdge } from "../types/pipeline";
+import type { PipelineEdge, PipelineNode } from "../types/pipeline";
 
 interface PipelineState {
   nodes: PipelineNode[];
