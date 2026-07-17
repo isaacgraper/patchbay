@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import Canvas from "../components/canvas/Canvas";
-import NodePalette from "../components/canvas/NodePalette";
 import NodeInspector from "../components/canvas/NodeInspector";
+import NodePalette from "../components/canvas/NodePalette";
 
 export default function WorkflowEditor() {
   const { id } = useParams();

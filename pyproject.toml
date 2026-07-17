@@ -5,13 +5,14 @@ description = "Visual Runtime Router for MCP servers and agentic pipelines"
 authors = ["Isaac Graper"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "backend", from = "packages"}]
+packages = [{include = "backend", from = "packages/backend/src"}]
 
 [tool.poetry.dependencies]
 python = "^3.12"
 fastapi = "^0.115.0"
 uvicorn = {extras = ["standard"], version = "^0.32.0"}
 pydantic = "^2.10.0"
+pydantic-settings = "^2.6.0"
 sqlalchemy = {extras = ["asyncio"], version = "^2.0.0"}
 aiosqlite = "^0.20.0"
 alembic = "^1.14.0"

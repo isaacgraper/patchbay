@@ -1,9 +1,5 @@
+import { GitBranch, Settings, Workflow } from "lucide-react";
 import { NavLink } from "react-router-dom";
-import {
-  GitBranch,
-  Settings,
-  Workflow,
-} from "lucide-react";
 
 const links = [
   { to: "/", label: "Pipelines", icon: Workflow },

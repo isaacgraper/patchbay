@@ -10,9 +10,7 @@ export default function Settings() {
       </div>
       <div className="space-y-6">
         <section className="rounded-lg border border-gray-800 p-4">
-          <h2 className="mb-2 text-sm font-semibold text-gray-300">
-            MCP Server Connections
-          </h2>
+          <h2 className="mb-2 text-sm font-semibold text-gray-300">MCP Server Connections</h2>
           <p className="mb-4 text-sm text-gray-500">
             Configure the MCP servers Patchbay can route to.
           </p>
@@ -21,9 +19,7 @@ export default function Settings() {
           </div>
         </section>
         <section className="rounded-lg border border-gray-800 p-4">
-          <h2 className="mb-2 text-sm font-semibold text-gray-300">
-            AI Model Providers
-          </h2>
+          <h2 className="mb-2 text-sm font-semibold text-gray-300">AI Model Providers</h2>
           <p className="mb-4 text-sm text-gray-500">
             API keys and model preferences for cloud/local LLMs.
           </p>

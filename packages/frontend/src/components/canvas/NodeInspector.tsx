@@ -4,9 +4,7 @@ export default function NodeInspector() {
       <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
         Inspector
       </h2>
-      <p className="text-sm text-gray-600">
-        Select a node to inspect its configuration.
-      </p>
+      <p className="text-sm text-gray-600">Select a node to inspect its configuration.</p>
     </aside>
   );
 }
