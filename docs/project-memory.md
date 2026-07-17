@@ -22,10 +22,10 @@ Chosen over flat `backend/` + `frontend/` at root because it mirrors how large o
 ### `pyproject.toml` package mapping
 
 ```toml
-packages = [{include = "backend", from = "packages"}]
+packages = [{include = "backend", from = "packages/backend/src"}]
 ```
 
-This keeps `import backend` clean while the source is nested.
+This keeps `import backend` clean while the source is nested. The backend was later restructured to a `src/` layout (`packages/backend/src/backend/`) with `app.py`, `config.py`, `routes/`, `services/`, `models/`, `dependencies/` — see `CLAUDE.md`'s architecture tree for the current shape.
 
 ---
 
@@ -64,6 +64,10 @@ Chose v3 with `tailwind.config.ts` over v4's CSS-first approach because:
 The frontend runs bare via `npm run dev` during development and is not part of `docker-compose.yml`. The deployable frontend is built to static files (`vite build`) and served separately.
 
 The `base: './'` setting in `vite.config.ts` enables filesystem-based serving for future desktop packaging (Tauri/Electron).
+
+### pnpm + Biome, not npm + ESLint/Prettier
+
+The frontend package manager is `pnpm` (`pnpm-lock.yaml`, `packageManager` field in `package.json`), not `npm`. Lint and format run through Biome (`biome.json`), which was adopted directly — there was no prior ESLint/Prettier setup to migrate off. `.npmrc` sets `engine-strict=true`, `audit=true`, `ignore-scripts=true`; none of the current dependencies need install-time scripts, so this is a safe default rather than a workaround.
 
 ### Vite proxy for API calls
 
@@ -119,6 +123,10 @@ Chosen over:
 
 SQLite with async drivers handles the expected concurrency (one user, multiple pipeline runs) without requiring a database server.
 
+### No authentication layer
+
+Patchbay has no auth system, and none is planned. It's offline-first and single-local-user — the FastAPI/MCP server binds to `localhost` for one person's own AI clients and tools, with no network-facing surface that needs authenticating. There's no `routes/auth/` in the codebase; don't add one speculatively. Revisit only if the multi-user question below is ever answered "yes."
+
 ### Alembic for migrations
 
 Even though SQLite is schema-flexible, Alembic provides:
@@ -127,6 +135,10 @@ Even though SQLite is schema-flexible, Alembic provides:
 - A clear migration history
 
 The async migration environment in `env.py` uses `run_async_migrations()` with `async_engine_from_config`.
+
+### Docker: multi-stage, non-root user, `python:3.12-slim-bookworm`
+
+`packages/backend/Dockerfile` builds dependencies in a `poetry install --no-root --only main` stage (not `poetry export` + `pip install`), then copies only the compiled `.venv` into a slim runtime stage that drops root privileges (dedicated `patchbay` user/group, uid/gid 10001) before `CMD`. `make docker-scan` builds the image and runs Trivy (`aquasec/trivy:latest`) against it — findings aren't currently gated in CI, this is a local/manual check. Because the container no longer runs as root, the `./patchbay.db` bind mount in `docker-compose.yml` needs to be pre-created and chowned to uid 10001 on the host before first run (documented inline in `docker-compose.yml`).
 
 ---
 
@@ -148,12 +160,22 @@ The mypy hook runs against `packages/backend/` with `pass_filenames: false` to c
 
 ## CI (GitHub Actions)
 
-Two jobs run in parallel on push/PR to `main` and `dev`:
+`ci.yml` runs two jobs in parallel on push/PR to `main` and `dev`:
 
 - **backend**: Python 3.12, Poetry, ruff lint, ruff format check, mypy, pytest
-- **frontend**: Node 20 and 22, npm ci, tsc, vite build
+- **frontend**: Node 20 and 22, pnpm install --frozen-lockfile, tsc, vite build
 
-The cache key for Poetry's virtualenv includes a hash of `poetry.lock`.
+The cache key for Poetry's virtualenv includes a hash of `poetry.lock`; the frontend job caches on `pnpm-lock.yaml`.
+
+A separate `frontend-security.yml` workflow, path-filtered to `packages/frontend/**`, runs Biome lint and `pnpm audit --audit-level=high` on push/PR. It's kept out of `ci.yml` deliberately: audit findings shouldn't block every unrelated PR the same way a broken build does, so the audit step runs with `continue-on-error: true` until the team defines a blocking policy.
+
+---
+
+## Tooling
+
+### Turborepo: not adopted
+
+Considered for task orchestration/caching across the monorepo but deliberately not added. The repo has one JS/TS package (`packages/frontend`) and a Poetry-managed Python backend — Turbo's content-hash build caching doesn't meaningfully apply to `pytest`/`mypy`/SQLite artifacts the way it does to `dist/` output, and there's nothing to parallelize against with only one JS package. A backend passthrough `package.json` (scripts that just shell out to `make` targets) would add a second package-manager surface for no real caching benefit. Revisit if a second JS/TS package (e.g. a future desktop shell) is added.
 
 ---
 
